@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Modal,
 } from "react-native";
-import SudokuCell from "./SudokuCell";
+import SudokuCell from "./components/SudokuCell";
 
 // function generateSudokuPuzzle(difficulty) {
 //   const solvedPuzzle = [

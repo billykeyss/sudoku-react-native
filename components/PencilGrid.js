@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 });
 
 
-const NumberGrid = ({ pencilValues }) => {
+const PencilGrid = ({ pencilValues }) => {
   const hiddenNumbers = new Set(pencilValues); // convert the array to a Set for faster lookup
 
   const renderNumber = (number) => {
@@ -55,4 +55,4 @@ const NumberGrid = ({ pencilValues }) => {
   );
 };
 
-export default NumberGrid;
+export default PencilGrid;

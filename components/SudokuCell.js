@@ -5,7 +5,7 @@ import {
   TouchableHighlight,
   View,
 } from "react-native";
-import NumberGrid from "./NumberGrid"
+import PencilGrid from "./PencilGrid"
 
 export default function SudokuCell({ cell, selectedNumber, selectedCell, rowIndex, colIndex, answer, pencilValues, handleCellPress, isOriginalCell }) {
 
@@ -55,7 +55,7 @@ export default function SudokuCell({ cell, selectedNumber, selectedCell, rowInde
           {cell || ""}
         </Text>
       ) : (
-        <NumberGrid
+        <PencilGrid
           key={rowIndex + "-" + colIndex}
           pencilValues={pencilValues}
         />
@@ -75,15 +75,6 @@ const styles = StyleSheet.create({
   },
   cellText: {
     fontSize: 20,
-  },
-  pencilGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "100%",
-    height: "100%",
-    padding: 4,
   },
   pencilValue: {
     width: "33.33%",
