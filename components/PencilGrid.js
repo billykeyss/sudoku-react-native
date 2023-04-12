@@ -1,33 +1,41 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     width: 40,
     height: 40,
-    padding: 5
+    padding: 5,
   },
   number: {
     fontSize: 8,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   hiddenNumber: {
-    opacity: 0  // Hides the number by making it fully transparent
+    opacity: 0, // Hides the number by making it fully transparent
+  },
+  selectedNumber: {
+    backgroundColor: "lightblue",
   },
 });
 
-
-const PencilGrid = ({ pencilValues }) => {
+const PencilGrid = ({ pencilValues, selectedNumber }) => {
   const hiddenNumbers = new Set(pencilValues); // convert the array to a Set for faster lookup
 
   const renderNumber = (number) => {
     if (hiddenNumbers.has(number)) {
       // number is in the pencilValues array, so show it
-      return <Text style={styles.number}>{number}</Text>;
+      if (number == selectedNumber) {
+        return (
+          <Text style={[styles.number, styles.selectedNumber]}>{number}</Text>
+        );
+      } else {
+        return <Text style={styles.number}>{number}</Text>;
+      }
     } else {
       // number is not in pencilValues array, so hide it
       return <Text style={styles.number}> </Text>;

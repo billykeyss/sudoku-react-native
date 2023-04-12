@@ -5,9 +5,11 @@ import {
   View,
   TouchableHighlight,
   TouchableOpacity,
+  Button,
   Modal,
 } from "react-native";
 import SudokuCell from "./components/SudokuCell";
+import * as SudokuHelper from "./SudokuHelper";
 
 // function generateSudokuPuzzle(difficulty) {
 //   const solvedPuzzle = [
@@ -65,151 +67,46 @@ import SudokuCell from "./components/SudokuCell";
 //   return puzzle;
 // }
 
-// Gets all possible values for a specific sudoku cell.
-function analyzeBoardData(sudokuData) {
-  const numRows = sudokuData.length;
-  const numCols = sudokuData[0].length;
-
-  // Populate the SudokuCellData objects with possible values for each cell
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      if (sudokuData[row][col].value !== 0) {
-        // If the cell already has a value, set it as the only possible value
-        // Already has a value, skipping
-      } else {
-        // Otherwise, calculate the possible values for the cell
-        const usedValues = new Set();
-
-        // Check values in the same row and column
-        for (let i = 0; i < 9; i++) {
-          usedValues.add(sudokuData[row][i].value);
-          usedValues.add(sudokuData[i][col].value);
-        }
-
-        // Check values in the same 3x3 sub-grid
-        const subGridStartRow = Math.floor(row / 3) * 3;
-        const subGridStartCol = Math.floor(col / 3) * 3;
-        for (let i = subGridStartRow; i < subGridStartRow + 3; i++) {
-          for (let j = subGridStartCol; j < subGridStartCol + 3; j++) {
-            usedValues.add(sudokuData[i][j].value);
-          }
-        }
-
-        // Determine the remaining unused values for the cell
-        const unusedValues = [];
-        for (let i = 1; i <= 9; i++) {
-          if (!usedValues.has(i)) {
-            unusedValues.push(i);
-          }
-        }
-
-        // Set the possible values for the cell in the SudokuCellData object
-        sudokuData[row][col].pencilValues = unusedValues;
-      }
-    }
-  }
-
-  return sudokuData;
-}
-
-function solveSudoku(puzzle) {
-  const solve = (board) => {
-    for (let i = 0; i < 9; i++) {
-      for (let j = 0; j < 9; j++) {
-        if (board[i][j] === 0) {
-          for (let num = 1; num <= 9; num++) {
-            if (isValid(board, i, j, num)) {
-              board[i][j] = num;
-              if (solve(board)) {
-                return true;
-              } else {
-                board[i][j] = 0;
-              }
-            }
-          }
-          return false;
-        }
-      }
-    }
-    return true;
-  };
-
-  if (solve(puzzle)) {
-    console.log("Solving Sudoku");
-    return puzzle;
-  } else {
-    throw new Error("Invalid puzzle");
-  }
-}
-
-function isValid(board, row, col, num) {
-  for (let i = 0; i < 9; i++) {
-    if (board[row][i] === num || board[i][col] === num) {
-      return false;
-    }
-  }
-
-  const startRow = Math.floor(row / 3) * 3;
-  const startCol = Math.floor(col / 3) * 3;
-
-  for (let i = startRow; i < startRow + 3; i++) {
-    for (let j = startCol; j < startCol + 3; j++) {
-      if (board[i][j] === num) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-function createSudokuBoardData(initialBoard, solution) {
-  const board = [];
-
-  for (let i = 0; i < initialBoard.length; i++) {
-    const row = [];
-
-    for (let j = 0; j < initialBoard[i].length; j++) {
-      const value = initialBoard[i][j];
-      const pencilValues = [];
-      const answer = solution[i][j];
-
-      row.push(new SudokeCellData(value, pencilValues, answer));
-    }
-
-    board.push(row);
-  }
-
-  return board;
-}
-
-class SudokeCellData {
-  constructor(value, pencilValues, answer) {
-    this.value = value;
-    this.pencilValues = pencilValues;
-    this.answer = answer;
-  }
-}
-
 export default function App() {
-  const initialBoard = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9],
+  const swordfishBoard = [
+    [9, 0, 8, 7, 3, 5, 1, 0, 0],
+    [0, 1, 0, 9, 8, 0, 0, 3, 0],
+    [0, 0, 0, 0, 2, 0, 0, 9, 8],
+    [8, 0, 5, 4, 6, 9, 3, 1, 0],
+    [0, 9, 0, 0, 7, 0, 0, 0, 0],
+    [0, 4, 3, 2, 5, 0, 9, 0, 0],
+    [2, 5, 0, 0, 9, 0, 0, 0, 1],
+    [0, 8, 9, 5, 1, 2, 0, 6, 3],
+    [0, 0, 1, 8, 4, 7, 0, 0, 9],
   ];
+  const initialBoard = SudokuHelper.generatePuzzle("extreme");
+
+  // const initialBoard = [
+  //   [5, 3, 0, 0, 7, 0, 0, 0, 0],
+  //   [6, 0, 0, 1, 9, 5, 0, 0, 0],
+  //   [0, 9, 8, 0, 0, 0, 0, 6, 0],
+  //   [8, 0, 0, 0, 6, 0, 0, 0, 3],
+  //   [4, 0, 0, 8, 0, 3, 0, 0, 1],
+  //   [7, 0, 0, 0, 2, 0, 0, 0, 6],
+  //   [0, 6, 0, 0, 0, 0, 2, 8, 0],
+  //   [0, 0, 0, 4, 1, 9, 0, 0, 5],
+  //   [0, 0, 0, 0, 8, 0, 0, 7, 9],
+  // ];
   const initialBoardRef = JSON.parse(JSON.stringify(initialBoard));
-  const sudokuSolution = solveSudoku(JSON.parse(JSON.stringify(initialBoard)));
-  const sudokuData = createSudokuBoardData(initialBoard, sudokuSolution);
+  const sudokuSolution = SudokuHelper.solveSudoku(
+    JSON.parse(JSON.stringify(initialBoard))
+  );
+  const sudokuData = SudokuHelper.createSudokuBoardData(
+    initialBoard,
+    sudokuSolution
+  );
   console.log("Board: " + JSON.stringify(sudokuData));
+  console.log("New Puzzle: " + initialBoard);
 
   const [board, setBoard] = useState(initialBoard);
   const [boardData, setBoardData] = useState([...sudokuData]);
+  const [difficultyModalVisible, setDifficultyModalVisible] = useState(false);
+  const [hint, setHint] = useState("");
 
   const [pencilMode, setPencilMode] = useState(false);
   const [history, setHistory] = useState([[...initialBoard]]);
@@ -248,10 +145,18 @@ export default function App() {
         newBoard[selectedCell.row][selectedCell.col] = number;
         setBoard(newBoard);
         setBoardData(
-          analyzeBoardData(createSudokuBoardData(newBoard, boardSolution))
+          SudokuHelper.analyzeBoardData(
+            SudokuHelper.createSudokuBoardData(newBoard, boardSolution)
+          )
         );
         setHistory([...history, newBoard]);
         setCurrentStep(currentStep + 1);
+
+        if (SudokuHelper.isSudokuComplete(newBoard)) {
+          console.log("You're done!");
+        } else {
+          console.log("Not Yet");
+        }
       }
     }
   };
@@ -279,7 +184,11 @@ export default function App() {
   };
 
   const handleFastPencil = () => {
-    setBoardData(analyzeBoardData(createSudokuBoardData(board, boardSolution)));
+    setBoardData(
+      SudokuHelper.analyzeBoardData(
+        SudokuHelper.createSudokuBoardData(board, boardSolution)
+      )
+    );
   };
 
   const handleTogglePencil = () => {
@@ -291,8 +200,10 @@ export default function App() {
   };
 
   const handleRefresh = () => {
-    // TODO generate a new sudoku puzzle
+    showDifficultyModal();
   };
+
+  const handleDifficultyRefresh = (difficulty) => {};
 
   const isCellValid = (cell) => {
     return cell != 0 && cell != null;
@@ -300,6 +211,69 @@ export default function App() {
 
   const isCellCorrect = (cell, row, col) => {
     return soluton[row][col] === cell;
+  };
+
+  const autoSolve = () => {
+    let currentBoard = JSON.parse(JSON.stringify(board));
+    let solvedBoard = SudokuHelper.solveSudoku(
+      JSON.parse(JSON.stringify(currentBoard))
+    );
+
+    let intervalId = setInterval(() => {
+      console.log(
+        "Checking interal: " +
+          JSON.stringify(SudokuHelper.analyzeBoard(currentBoard))
+      );
+      let nextMove = SudokuHelper.analyzeBoard(currentBoard).nextMove;
+
+      if (nextMove) {
+        console.log("Checking next move");
+        currentBoard = SudokuHelper.setCellValue(
+          board,
+          nextMove.row,
+          nextMove.col,
+          nextMove.value
+        );
+        // render current board
+        console.log("Setting current board");
+        setBoard(currentBoard);
+      } else {
+        clearInterval(intervalId);
+      }
+      console.log("Checking next move after");
+
+      if (SudokuHelper.isEqual(currentBoard, solvedBoard)) {
+        console.log("Board is solved");
+        clearInterval(intervalId);
+        // display message that the puzzle has been solved
+      }
+    }, 500);
+  };
+
+  const handleAdvancedHint = () => {
+    const nextMove = SudokuHelper.analyzeBoard(board);
+    setHint(
+      "Next best move is row: " +
+        (nextMove.nextMove.row + 1) +
+        " ; col: " +
+        (nextMove.nextMove.col + 1) +
+        " ; value: " +
+        nextMove.nextMove.value +
+        "\n Reason: " +
+        nextMove.reason
+    );
+  };
+
+  const getRemainingNumber = (number) => {
+    return "1";
+  };
+
+  const showDifficultyModal = () => {
+    setDifficultyModalVisible(true);
+  };
+
+  const hideDifficultyModal = () => {
+    setDifficultyModalVisible(false);
   };
 
   return (
@@ -353,6 +327,12 @@ export default function App() {
           <TouchableOpacity onPress={handleHint}>
             <Text style={styles.button}>Hint</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={handleAdvancedHint}>
+            <Text style={styles.button}>Advanced Hint</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={autoSolve}>
+            <Text style={styles.button}>AutoSolve</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.modalContent}>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (
@@ -365,6 +345,36 @@ export default function App() {
             </TouchableHighlight>
           ))}
         </View>
+        <View style={styles.hint}>
+          <Text>{hint}</Text>
+        </View>
+
+        <Modal
+          visible={difficultyModalVisible}
+          onRequestClose={hideDifficultyModal}
+        >
+          <View style={styles.difficultyModal}>
+            <Text>Modal Content Here</Text>
+            <View style={styles.modalContent}>
+              <TouchableOpacity>
+                <Text style={styles.button}>easy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.button}>medium</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.button}>hard</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.button}>extreme</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity onPress={hideDifficultyModal}>
+              <Text style={styles.button}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
       </View>
     </View>
   );
@@ -406,14 +416,6 @@ const styles = StyleSheet.create({
     height: "100%",
     padding: 4,
   },
-  pencilValue: {
-    width: "33.33%",
-    textAlign: "center",
-    fontSize: 10,
-    fontWeight: "bold",
-    paddingVertical: 2,
-    color: "gray",
-  },
   selected: {
     color: "black",
   },
@@ -447,6 +449,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  modal: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -458,15 +464,20 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   modalButton: {
-    width: 40,
+    width: 35,
     height: 40,
     borderWidth: 1,
     borderColor: "black",
     alignItems: "center",
     justifyContent: "center",
-    margin: 10,
+    margin: 5,
   },
   modalButtonText: {
     fontSize: 20,
+  },
+  hint: {
+    paddingTop: 30,
+    textAlign: "center",
+    textAlignVertical: "center",
   },
 });

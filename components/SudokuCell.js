@@ -1,14 +1,18 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View,
-} from "react-native";
-import PencilGrid from "./PencilGrid"
+import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
+import PencilGrid from "./PencilGrid";
 
-export default function SudokuCell({ cell, selectedNumber, selectedCell, rowIndex, colIndex, answer, pencilValues, handleCellPress, isOriginalCell }) {
-
+export default function SudokuCell({
+  cell,
+  selectedNumber,
+  selectedCell,
+  rowIndex,
+  colIndex,
+  answer,
+  pencilValues,
+  handleCellPress,
+  isOriginalCell,
+}) {
   const isSelectedNumber =
     cell === selectedNumber &&
     selectedCell &&
@@ -35,7 +39,7 @@ export default function SudokuCell({ cell, selectedNumber, selectedCell, rowInde
     textStyle = styles.textBlack;
   }
 
-    return (
+  return (
     <TouchableHighlight
       key={colIndex}
       style={[
@@ -46,23 +50,19 @@ export default function SudokuCell({ cell, selectedNumber, selectedCell, rowInde
       onPress={() => handleCellPress(rowIndex, colIndex)}
     >
       {cell !== 0 ? (
-        <Text
-          style={[
-            textStyle,
-            isOriginalCell && styles.bold
-            ]}
-        >
+        <Text style={[textStyle, isOriginalCell && styles.bold]}>
           {cell || ""}
         </Text>
       ) : (
         <PencilGrid
           key={rowIndex + "-" + colIndex}
           pencilValues={pencilValues}
+          selectedNumber={selectedNumber}
         />
       )}
     </TouchableHighlight>
   );
-};
+}
 
 const styles = StyleSheet.create({
   cell: {
@@ -117,6 +117,6 @@ const styles = StyleSheet.create({
     color: "red",
   },
   bold: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
