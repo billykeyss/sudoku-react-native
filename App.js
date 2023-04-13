@@ -11,97 +11,14 @@ import {
 import SudokuCell from "./components/SudokuCell";
 import * as SudokuHelper from "./SudokuHelper";
 
-// function generateSudokuPuzzle(difficulty) {
-//   const solvedPuzzle = [
-//     [5, 3, 4, 6, 7, 8, 9, 1, 2],
-//     [6, 7, 2, 1, 9, 5, 3, 4, 8],
-//     [1, 9, 8, 3, 4, 2, 5, 6, 7],
-//     [8, 5, 9, 7, 6, 1, 4, 2, 3],
-//     [4, 2, 6, 8, 5, 3, 7, 9, 1],
-//     [7, 1, 3, 9, 2, 4, 8, 5, 6],
-//     [9, 6, 1, 5, 3, 7, 2, 8, 4],
-//     [2, 8, 7, 4, 1, 9, 6, 3, 5],
-//     [3, 4, 5, 2, 8, 6, 1, 7, 9],
-//   ];
-
-//   // Determine number of cells to remove based on difficulty
-//   let numCellsToRemove;
-//   switch (difficulty) {
-//     case "easy":
-//       numCellsToRemove = 40;
-//       break;
-//     case "medium":
-//       numCellsToRemove = 50;
-//       break;
-//     case "hard":
-//       numCellsToRemove = 60;
-//       break;
-//     default:
-//       numCellsToRemove = 40;
-//   }
-
-//   // Make a copy of the solved puzzle
-//   let puzzle = solvedPuzzle.map((row) => [...row]);
-
-//   // Remove cells randomly until desired difficulty is achieved
-//   for (let i = 0; i < numCellsToRemove; i++) {
-//     let row, col;
-//     do {
-//       // Choose a random cell to remove
-//       row = Math.floor(Math.random() * 9);
-//       col = Math.floor(Math.random() * 9);
-//     } while (puzzle[row][col] === null);
-
-//     // Remove the cell value
-//     puzzle[row][col] = null;
-
-//     // Check if resulting puzzle has a unique solution
-//     const unique = isUniqueSolution(puzzle);
-//     if (!unique) {
-//       // If not, undo the last removal and try again
-//       puzzle[row][col] = solvedPuzzle[row][col];
-//       i--;
-//     }
-//   }
-
-//   return puzzle;
-// }
-
 export default function App() {
-  const swordfishBoard = [
-    [9, 0, 8, 7, 3, 5, 1, 0, 0],
-    [0, 1, 0, 9, 8, 0, 0, 3, 0],
-    [0, 0, 0, 0, 2, 0, 0, 9, 8],
-    [8, 0, 5, 4, 6, 9, 3, 1, 0],
-    [0, 9, 0, 0, 7, 0, 0, 0, 0],
-    [0, 4, 3, 2, 5, 0, 9, 0, 0],
-    [2, 5, 0, 0, 9, 0, 0, 0, 1],
-    [0, 8, 9, 5, 1, 2, 0, 6, 3],
-    [0, 0, 1, 8, 4, 7, 0, 0, 9],
-  ];
-  const initialBoard = SudokuHelper.generatePuzzle("extreme");
-
-  // const initialBoard = [
-  //   [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  //   [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  //   [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  //   [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  //   [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  //   [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  //   [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  //   [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  //   [0, 0, 0, 0, 8, 0, 0, 7, 9],
-  // ];
+  const initialBoard = SudokuHelper.generatePuzzle("easy");
   const initialBoardRef = JSON.parse(JSON.stringify(initialBoard));
-  const sudokuSolution = SudokuHelper.solveSudoku(
-    JSON.parse(JSON.stringify(initialBoard))
-  );
-  const sudokuData = SudokuHelper.createSudokuBoardData(
+  const sudokuSolution = SudokuHelper.solveSudoku(JSON.parse(JSON.stringify(initialBoard)));
+  const sudokuData = (SudokuHelper.createSudokuBoardData(
     initialBoard,
     sudokuSolution
-  );
-  console.log("Board: " + JSON.stringify(sudokuData));
-  console.log("New Puzzle: " + initialBoard);
+  ));
 
   const [board, setBoard] = useState(initialBoard);
   const [boardData, setBoardData] = useState([...sudokuData]);
@@ -115,6 +32,7 @@ export default function App() {
 
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [selectedCell, setSelectedCell] = useState(null);
+  const [isGameSolved, setIsGameSolved] = useState(false);
 
   const handleCellPress = (row, col) => {
     setSelectedCell({ row, col });
@@ -138,25 +56,28 @@ export default function App() {
       setBoardData(boardData);
       setBoard([...board]);
     } else {
-      if (initialBoardRef[selectedCell.row][selectedCell.col] !== 0) {
-        console.log("Original puzzle number, skipping");
-      } else {
-        const newBoard = JSON.parse(JSON.stringify(board));
-        newBoard[selectedCell.row][selectedCell.col] = number;
-        setBoard(newBoard);
-        setBoardData(
-          SudokuHelper.analyzeBoardData(
-            SudokuHelper.createSudokuBoardData(newBoard, boardSolution)
-          )
-        );
-        setHistory([...history, newBoard]);
-        setCurrentStep(currentStep + 1);
+      if (selectedCell == null) {
+        console.log("Not setting number due to no selected cell");
+        return;
+      }
+      console.log("Setting number: " + number);
+      const newBoard = JSON.parse(JSON.stringify(board));
+      newBoard[selectedCell.row][selectedCell.col] = number;
+      setBoard(newBoard);
+      setBoardData(
+        SudokuHelper.analyzeBoardData(
+          SudokuHelper.createSudokuBoardData(newBoard, boardSolution)
+        )
+      );
+      setHistory([...history, newBoard]);
+      setCurrentStep(currentStep + 1);
 
-        if (SudokuHelper.isSudokuComplete(newBoard)) {
-          console.log("You're done!");
-        } else {
-          console.log("Not Yet");
-        }
+      if (SudokuHelper.isSudokuComplete(newBoard)) {
+        console.log("You're done!");
+        setIsGameSolved(true);
+        handleRefresh();
+      } else {
+        console.log("Not Yet");
       }
     }
   };
@@ -203,7 +124,29 @@ export default function App() {
     showDifficultyModal();
   };
 
-  const handleDifficultyRefresh = (difficulty) => {};
+  const handleDifficultyRefresh = (difficulty) => {
+    const initialBoard = SudokuHelper.generatePuzzle(difficulty);
+    const initialBoardRef = JSON.parse(JSON.stringify(initialBoard));
+    const sudokuSolution = SudokuHelper.solveSudoku(
+      JSON.parse(JSON.stringify(initialBoard))
+    );
+    const sudokuData = SudokuHelper.createSudokuBoardData(
+      initialBoard,
+      sudokuSolution
+    );
+
+    setBoard(initialBoard);
+    setBoardData(sudokuData);
+    setHint("");
+    setDifficultyModalVisible(false);
+    setPencilMode(false);
+    setHistory([[...initialBoard]]);
+    setCurrentStep(0);
+    setBoardSolution(sudokuSolution);
+
+    setSelectedNumber(null);
+    setSelectedCell(null);
+  };
 
   const isCellValid = (cell) => {
     return cell != 0 && cell != null;
@@ -220,10 +163,6 @@ export default function App() {
     );
 
     let intervalId = setInterval(() => {
-      console.log(
-        "Checking interal: " +
-          JSON.stringify(SudokuHelper.analyzeBoard(currentBoard))
-      );
       let nextMove = SudokuHelper.analyzeBoard(currentBoard).nextMove;
 
       if (nextMove) {
@@ -252,16 +191,21 @@ export default function App() {
 
   const handleAdvancedHint = () => {
     const nextMove = SudokuHelper.analyzeBoard(board);
-    setHint(
-      "Next best move is row: " +
-        (nextMove.nextMove.row + 1) +
-        " ; col: " +
-        (nextMove.nextMove.col + 1) +
-        " ; value: " +
-        nextMove.nextMove.value +
-        "\n Reason: " +
-        nextMove.reason
-    );
+    if (nextMove.nextMove != null) {
+      setHint(
+        "Next best move is row: " +
+          (nextMove.nextMove.row + 1) +
+          " ; col: " +
+          (nextMove.nextMove.col + 1) +
+          " ; value: " +
+          nextMove.nextMove.value +
+          "\n Reason: " +
+          nextMove.reason
+      );
+    } else {
+      setHint("No best move detected");
+    }
+
   };
 
   const getRemainingNumber = (number) => {
@@ -330,9 +274,6 @@ export default function App() {
           <TouchableOpacity onPress={handleAdvancedHint}>
             <Text style={styles.button}>Advanced Hint</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={autoSolve}>
-            <Text style={styles.button}>AutoSolve</Text>
-          </TouchableOpacity>
         </View>
         <View style={styles.modalContent}>
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (
@@ -351,22 +292,30 @@ export default function App() {
 
         <Modal
           visible={difficultyModalVisible}
+          style={styles.difficultyModal}
           onRequestClose={hideDifficultyModal}
         >
-          <View style={styles.difficultyModal}>
-            <Text>Modal Content Here</Text>
+          <View style={styles.difficultyModalContent}>
+            {isGameSolved && <Text>You won! Try again?</Text>}
+            <Text>Select new difficulty</Text>
             <View style={styles.modalContent}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDifficultyRefresh('supereasy')}>
+                <Text style={styles.button}>ezpz</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDifficultyRefresh('easy')}>
                 <Text style={styles.button}>easy</Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDifficultyRefresh('medium')}>
                 <Text style={styles.button}>medium</Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDifficultyRefresh('hard')}>
                 <Text style={styles.button}>hard</Text>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDifficultyRefresh('extreme')}>
                 <Text style={styles.button}>extreme</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDifficultyRefresh('hell')}>
+                <Text style={styles.button}>hell</Text>
               </TouchableOpacity>
             </View>
 
@@ -449,14 +398,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  modal: {
+  difficultyModal: {
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: 'flex-end'
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
+  difficultyModalContent: {
+    alignItems: "center",
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    height: '100%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   modalContent: {
     marginTop: 20,
@@ -464,8 +416,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   modalButton: {
-    width: 35,
-    height: 40,
+    width: 36,
+    height: 65,
     borderWidth: 1,
     borderColor: "black",
     alignItems: "center",

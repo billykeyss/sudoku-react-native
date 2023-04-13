@@ -35,6 +35,24 @@ export const analyzeBoard = (board) => {
   }
 
   // Check for hidden singles
+  // for (let row = 0; row < board.length; row++) {
+  //   for (let col = 0; col < board[row].length; col++) {
+  //     const cellValue = board[row][col];
+  //     if (cellValue === 0) {
+  //       const candidates = getCandidates(board, row, col);
+  //       for (let i = 0; i < candidates.length; i++) {
+  //         const candidate = candidates[i];
+  //         if (isHiddenSingle(board, row, col, candidate)) {
+  //           reason = "Hidden single";
+  //           nextMove = { row: row, col: col, value: candidate };
+  //           return { nextMove, reason };
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
       if (board[i][j] === 0) {
@@ -131,6 +149,29 @@ export const getCandidates = (row, col, box) => {
   const filledValues = [...row, ...col, ...box].filter((val) => val !== 0);
   const allValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   return allValues.filter((val) => !filledValues.includes(val));
+};
+
+export const getCandidatesForRowCol = (board, row, col) => {
+  const candidates = [];
+
+  // If the cell is not empty, return an empty array
+  if (board[row][col] !== 0) {
+    return candidates;
+  }
+
+  // Loop through the numbers 1 to 9
+  for (let num = 1; num <= 9; num++) {
+    // Check if the number is a valid candidate for the cell
+    if (
+      !isValueInRow(board, row, num) &&
+      !isValueInColumn(board, col, num) &&
+      !isValueInBox(board, row, col, num)
+    ) {
+      candidates.push(num);
+    }
+  }
+
+  return candidates;
 };
 
 // Returns the values that are common to all cells in the given row or column
@@ -667,14 +708,15 @@ export const isSudokuComplete = (board) => {
 
 export const generatePuzzle = (difficulty) => {
   const puzzles = {
+    supereasy: 80,
     easy: 40,
     medium: 35,
     hard: 30,
     extreme: 25,
+    hell: 20,
   };
 
   const puzzleCount = puzzles[difficulty];
-  console.log("puzzleCount: " + puzzleCount + " ; " + difficulty);
   const puzzle = Array.from({ length: 9 }, () => new Array(9).fill(0));
 
   function shuffle(arr) {

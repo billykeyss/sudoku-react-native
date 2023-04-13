@@ -2,6 +2,8 @@ import React from "react";
 import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import PencilGrid from "./PencilGrid";
 
+export const GRID_SIZE = 45;
+
 export default function SudokuCell({
   cell,
   selectedNumber,
@@ -50,7 +52,7 @@ export default function SudokuCell({
       onPress={() => handleCellPress(rowIndex, colIndex)}
     >
       {cell !== 0 ? (
-        <Text style={[textStyle, isOriginalCell && styles.bold]}>
+        <Text style={[textStyle, styles.cellText]}>
           {cell || ""}
         </Text>
       ) : (
@@ -66,30 +68,19 @@ export default function SudokuCell({
 
 const styles = StyleSheet.create({
   cell: {
-    width: 40,
-    height: 40,
+    width: GRID_SIZE,
+    height: GRID_SIZE,
     borderWidth: 1,
     borderColor: "black",
     alignItems: "center",
     justifyContent: "center",
   },
-  cellText: {
-    fontSize: 20,
-  },
-  pencilValue: {
-    width: "33.33%",
-    textAlign: "center",
-    fontSize: 10,
-    fontWeight: "bold",
-    paddingVertical: 2,
-    color: "lightgray",
-  },
   selected: {
     color: "black",
   },
   selectedCell: {
-    width: 40,
-    height: 40,
+    width: GRID_SIZE,
+    height: GRID_SIZE,
     borderWidth: 1,
     borderColor: "black",
     alignItems: "center",
@@ -97,8 +88,8 @@ const styles = StyleSheet.create({
     backgroundColor: "lightblue",
   },
   selectedRowCol: {
-    width: 40,
-    height: 40,
+    width: GRID_SIZE,
+    height: GRID_SIZE,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -116,7 +107,7 @@ const styles = StyleSheet.create({
   textRed: {
     color: "red",
   },
-  bold: {
-    fontWeight: "bold",
+  cellText: {
+    fontSize: 32,
   },
 });

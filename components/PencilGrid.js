@@ -1,18 +1,19 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+export const GRID_SIZE = 40;
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    width: 40,
-    height: 40,
+    width: GRID_SIZE,
+    height: GRID_SIZE,
     padding: 5,
   },
   number: {
-    fontSize: 8,
-    fontWeight: "bold",
+    fontSize: 9,
     textAlign: "center",
   },
   hiddenNumber: {
